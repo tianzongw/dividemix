@@ -254,7 +254,7 @@ def train_model(model, train_images, train_labels, batch_size, epochs):
                                                                                         train_loss.result(),
                                                                                         train_accuracy.result()))
 
-
+                break
 
             print("Epoch: {}/{}, train loss: {:.5f}, train accuracy: {:.5f}, ".format(epoch + 1,
                                                                     10,
