@@ -16,7 +16,6 @@ test_dir = dataset_dir + "test"
 
 
 
-
 class BasicBlock(tf.keras.layers.Layer):
 
     def __init__(self, filter_num, stride=1):
@@ -109,6 +108,7 @@ def make_preact_block_layer(filter_num, blocks, stride=1):
 
     return res_block
 
+
 class ResNetTypeI(tf.keras.Model):
     def __init__(self, layer_params):
         super(ResNetTypeI, self).__init__()
@@ -193,11 +193,15 @@ class PreActResNet(tf.keras.Model):
         output = self.fc(x)
 
         return output
+
+
 def resnet_18():
     return ResNetTypeI(layer_params=[2, 2, 2, 2])
 
+
 def preact_resnet_18():
     return PreActResNet(layer_params=[2, 2, 2, 2])
+
 
 def get_model(model_name, image_height, image_width, channels = 3):
     if model_name == "preact":
@@ -208,7 +212,7 @@ def get_model(model_name, image_height, image_width, channels = 3):
     model.summary()
     return model
 
-#model = get_model()
+
 def train_model(model, train_images, train_labels, batch_size, epochs):
 
     @tf.function
@@ -257,7 +261,6 @@ def train_model(model, train_images, train_labels, batch_size, epochs):
                                                                     train_loss.result(),
                                                                     train_accuracy.result()
                                                                     ))
-
 
 
 def predict_model(model, images, labels, batch_size):
