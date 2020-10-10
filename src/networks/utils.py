@@ -40,16 +40,19 @@ def samplewise_loss(model, dataset, all_metrics = True):
         else:
             loss_all.append(test_step(model, metrics, batch_images, batch_labels, all_metrics))        
         
-        if i > 5:
-            break
+
     loss_all = tf.concat(loss_all, -1)
     return loss_all
 
 
 def data2tensor(train_images, train_labels, batch_size):
-
     train_images = tf.convert_to_tensor(train_images, dtype=tf.float32)
     train_labels = tf.convert_to_tensor(train_labels, dtype=tf.float32)
     train_dataset = tf.data.Dataset.from_tensor_slices((train_images/255, train_labels)).batch(batch_size=batch_size)
 
     return train_dataset
+
+    
+
+def normlize_loss(losses):
+    return (losses-tf.math.reduce_min(losses)/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
