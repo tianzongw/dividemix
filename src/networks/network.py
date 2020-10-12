@@ -1,6 +1,7 @@
 import math
 from tensorflow.keras import datasets
 import tensorflow as tf
+from .utils import augment
 
 EPOCHS = 50
 BATCH_SIZE = 8
@@ -244,7 +245,8 @@ def train_model(model, train_images, train_labels, batch_size, epochs):
             # valid_loss.reset_states()
             # valid_accuracy.reset_states()
             step = 0
-            for images, labels in train_dataset:            
+            for images, labels in train_dataset:  
+                images = augment(images)    # Augmentations    
                 step += 1
                 train_step(images, labels)
                 print("Epoch: {}/{}, step: {}, loss: {:.5f}, accuracy: {:.5f}".format(epoch + 1,
@@ -254,7 +256,6 @@ def train_model(model, train_images, train_labels, batch_size, epochs):
                                                                                         train_loss.result(),
                                                                                         train_accuracy.result()))
 
-                break
 
             print("Epoch: {}/{}, train loss: {:.5f}, train accuracy: {:.5f}, ".format(epoch + 1,
                                                                     10,

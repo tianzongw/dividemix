@@ -56,3 +56,10 @@ def data2tensor(train_images, train_labels, batch_size):
 
 def normlize_loss(losses):
     return (losses-tf.math.reduce_min(losses)/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
+
+
+def augment(images):
+    # iamges = tf.image.resize_with_crop_or_pad(images, 40, 40)
+    # images = tf.image.random_crop(iamges , [images.shape[0], 32, 32, 3])
+    # images = tf.image.per_image_standardization(images)
+    return images

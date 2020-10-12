@@ -7,6 +7,7 @@ from sklearn.mixture import GaussianMixture
 threshold  = 0.01
 
 cifar10 = dataset("cifar10", num_samples= 64)
+cifar10 = dataset("cifar10")
 
 print(cifar10.train_images.shape)
 
@@ -20,6 +21,8 @@ net1 =  get_model("preact", 32, 32, 3)
 # warmup
 train_model(net1, cifar10.train_images, cifar10.train_labels, 8, 10)
 cifar10_dataset = data2tensor(cifar10.train_images, cifar10.train_labels, 8)
+print(type(cifar10_dataset))
+
 net1_loss = samplewise_loss(net1, cifar10_dataset, all_metrics=False)
 net1_loss = normlize_loss(net1_loss)
 
@@ -34,3 +37,4 @@ ind_labeled = prob > threshold
 ind_unlabeled = prob < threshold
 
 labeled_iamges, labeled_labels , unlabeled_images = cifar10.co_divide(ind_labeled, ind_unlabeled)
+
