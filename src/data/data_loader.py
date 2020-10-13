@@ -38,5 +38,7 @@ class dataset():
         labeled_labels = self.train_labels[labeled_idx]
 
         unlabeled_images = self.train_images[unlabeled_idx]
+        unlabeled_labels = self.train_labels[unlabeled_idx]
 
-        return labeled_iamges, labeled_labels , unlabeled_images
+
+        return labeled_iamges, labeled_labels, unlabeled_images, unlabeled_labels

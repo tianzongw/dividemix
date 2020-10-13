@@ -25,20 +25,28 @@ train_model(net1, cifar10_augmented,  BATCH_SIZE, MAX_EPOCH)
 
 
 
-# print(type(cifar10_dataset))
 
-# net1_loss = samplewise_loss(net1, cifar10_dataset, all_metrics=False)
-# net1_loss = normlize_loss(net1_loss)
-
+net1_loss = samplewise_loss(net1, cifar10_augmented, all_metrics=False)
+net1_loss = normlize_loss(net1_loss)
 
 
-# # model per-sample loss 
-# gmm = GaussianMixture(n_components=2,max_iter=10,tol=1e-2,reg_covar=5e-4)
-# gmm.fit(tf.reshape(net1_loss, (-1, 1)))
-# prob = gmm.predict_proba(tf.reshape(net1_loss, (-1, 1))) 
-# prob = prob[:,gmm.means_.argmin()]    
-# ind_labeled = prob > threshold
-# ind_unlabeled = prob < threshold
 
-# labeled_iamges, labeled_labels , unlabeled_images = cifar10.co_divide(ind_labeled, ind_unlabeled)
+# model per-sample loss 
+gmm = GaussianMixture(n_components=2,max_iter=10,tol=1e-2,reg_covar=5e-4)
+gmm.fit(tf.reshape(net1_loss, (-1, 1)))
+prob = gmm.predict_proba(tf.reshape(net1_loss, (-1, 1))) 
+prob = prob[:,gmm.means_.argmin()]    
+ind_labeled = prob > threshold
+ind_unlabeled = prob < threshold
+
+labeled_iamges, labeled_labels , unlabeled_images, unlabeled_labels= cifar10.co_divide(ind_labeled, ind_unlabeled) # not augmented
+
+labeled_dataset = data2tensor(labeled_iamges, labeled_labels, BATCH_SIZE)
+unlabeled_dataset = data2tensor(unlabeled_iamges, unlabeled_labels, BATCH_SIZE)
+
+labeled_dataset_augmented = augment(labeled_dataset, BATCH_SIZE)
+unlabeled_dataset_augmented = augment(unlabeled_dataset, BATCH_SIZE)
+
+
+# 
 
