@@ -5,7 +5,8 @@ from networks.utils import samplewise_loss, data2tensor, normlize_loss
 from sklearn.mixture import GaussianMixture
 
 threshold  = 0.01
-
+BATCH_SIZE = 8
+MAX_EPOCH = 10
 cifar10 = dataset("cifar10", num_samples= 64)
 cifar10 = dataset("cifar10")
 
@@ -19,8 +20,8 @@ net1 =  get_model("preact", 32, 32, 3)
 
 
 # warmup
-train_model(net1, cifar10.train_images, cifar10.train_labels, 8, 10)
-cifar10_dataset = data2tensor(cifar10.train_images, cifar10.train_labels, 8)
+train_model(net1, cifar10.train_images, cifar10.train_labels, BATCH_SIZE, MAX_EPOCH)
+cifar10_dataset = data2tensor(cifar10.train_images, cifar10.train_labels, BATCH_SIZE)
 print(type(cifar10_dataset))
 
 net1_loss = samplewise_loss(net1, cifar10_dataset, all_metrics=False)
