@@ -214,7 +214,7 @@ def get_model(model_name, image_height, image_width, channels = 3):
     return model
 
 
-def train_model(model, train_images, train_labels, batch_size, epochs):
+def train_model(model, train_dataset, batch_size, epochs):
 
     @tf.function
     def train_step(images, labels):
@@ -227,11 +227,6 @@ def train_model(model, train_images, train_labels, batch_size, epochs):
 
         train_loss(loss)
         train_accuracy(labels, predictions)
-
-
-    train_images = tf.convert_to_tensor(train_images, dtype=tf.float32)
-    train_labels = tf.convert_to_tensor(train_labels, dtype=tf.float32)
-    train_dataset = tf.data.Dataset.from_tensor_slices((train_images/255, train_labels)).batch(batch_size=batch_size)
 
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
     optimizer = tf.keras.optimizers.Adadelta()
@@ -246,7 +241,6 @@ def train_model(model, train_images, train_labels, batch_size, epochs):
             # valid_accuracy.reset_states()
             step = 0
             for images, labels in train_dataset:  
-                images = augment(images)    # Augmentations    
                 step += 1
                 train_step(images, labels)
                 print("Epoch: {}/{}, step: {}, loss: {:.5f}, accuracy: {:.5f}".format(epoch + 1,

@@ -58,8 +58,18 @@ def normlize_loss(losses):
     return (losses-tf.math.reduce_min(losses)/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
 
 
-def augment(images):
-    # iamges = tf.image.resize_with_crop_or_pad(images, 40, 40)
-    # images = tf.image.random_crop(iamges , [images.shape[0], 32, 32, 3])
-    # images = tf.image.per_image_standardization(images)
-    return images
+def augment(dataset, batch_size):
+    images_combined = []
+    labels_combined = []
+    for images, labels in dataset:  
+        iamges = tf.image.resize_with_crop_or_pad(images, 40, 40)
+        images = tf.image.random_crop(iamges , [images.shape[0], 32, 32, 3])
+        images = tf.image.per_image_standardization(images)
+        images_combined.append(images)
+        labels_combined.append(labels)
+    images_combined = tf.concat(images_combined, axis = 0)
+    print(images_combined.shape)
+    labels_combined = tf.concat(labels_combined, axis = 0)
+    print(labels_combined.shape)
+    dataset = tf.data.Dataset.from_tensor_slices((images_combined, labels_combined)).batch(batch_size=batch_size)
+    return dataset
