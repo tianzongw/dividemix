@@ -244,7 +244,7 @@ def train_model(model, train_dataset, batch_size, epochs):
                 step += 1
                 train_step(images, labels)
                 print("Epoch: {}/{}, step: {}, loss: {:.5f}, accuracy: {:.5f}".format(epoch + 1,
-                                                                                        10,
+                                                                                        epochs,
                                                                                         step,
                                                                                         #  math.ceil(train_count / config.BATCH_SIZE),
                                                                                         train_loss.result(),
@@ -252,7 +252,7 @@ def train_model(model, train_dataset, batch_size, epochs):
 
 
             print("Epoch: {}/{}, train loss: {:.5f}, train accuracy: {:.5f}, ".format(epoch + 1,
-                                                                    10,
+                                                                    epochs,
                                                                     train_loss.result(),
                                                                     train_accuracy.result()
                                                                     ))
