@@ -21,6 +21,13 @@ def test_step(model, metrics, images, labels, all_metrics = False):
     return loss_elementwise
 
 
+def predict_batchwise(model, dataset):
+    predicted = []
+
+    for batch_images, batch_labels in dataset:
+        predicted.append(model(batch_images, training = False))
+    return tf.concat(predicted, axis = 0)
+
 def samplewise_loss(model, dataset, all_metrics = True):
     '''
     return all losses
