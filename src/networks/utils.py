@@ -23,10 +23,10 @@ def test_step(model, metrics, images, labels, all_metrics = False):
 
 def predict_batchwise(model, dataset):
     predicted = []
-
     for batch_images, batch_labels in dataset:
         predicted.append(model(batch_images, training = False))
-    return tf.concat(predicted, axis = 0)
+        # print(predicted[-1])
+    return tf.argmax(tf.concat(predicted, axis = 0), axis = 1).numpy()
 
 def samplewise_loss(model, dataset, all_metrics = True):
     '''
@@ -80,3 +80,9 @@ def augment(dataset, batch_size):
     print(labels_combined.shape)
     dataset = tf.data.Dataset.from_tensor_slices((images_combined, labels_combined)).batch(batch_size=batch_size)
     return dataset
+
+
+def sharpen(preds, temp):
+    preds = preds**(1/temp)
+    preds = preds / preds.sum() # normalize
+    return preds           
