@@ -75,9 +75,7 @@ def augment(dataset, batch_size):
         images_combined.append(images)
         labels_combined.append(labels)
     images_combined = tf.concat(images_combined, axis = 0)
-    print(images_combined.shape)
     labels_combined = tf.concat(labels_combined, axis = 0)
-    print(labels_combined.shape)
     dataset = tf.data.Dataset.from_tensor_slices((images_combined, labels_combined)).batch(batch_size=batch_size)
     return dataset
 
