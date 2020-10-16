@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+
 from data.data_loader import dataset
 from networks.network import get_model, train_model
 from networks.utils import augment, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen
@@ -7,7 +8,7 @@ from sklearn.mixture import GaussianMixture
 
 threshold  = 0.4
 BATCH_SIZE = 1024
-WARMUP_EPOCH = 1
+WARMUP_EPOCH = 10
 MAX_EPOCH = 2
 W_P = 0.5
 T = 0.5
@@ -66,21 +67,26 @@ for i in range(M):
     preds_unlabeled_1 = predict_batchwise(net1, unlabeled_dataset_augmented)
     preds_unlabeled_list.append(preds_unlabeled_1)  
 
-    preds_unlabeled_2 = predict_batchwise(net2, unlabeled_dataset_augmented)
+    preds_unlabeled_2 = predict_batchwise(net1, unlabeled_dataset_augmented)
     preds_unlabeled_list.append(preds_unlabeled_2)  
     
 preds_labeled_list = np.array(preds_labeled_list)
 preds_labeled_avg = np.mean(preds_labeled_list, axis = 0)
-del preds_labeled_list
+del(preds_labeled_list)
 
 preds_unlabeled_list = np.array(preds_unlabeled_list)
 preds_unlabeled_avg = np.mean(preds_unlabeled_list, axis = 0)
-del preds_unlabeled_list
+del(preds_unlabeled_list)
 
 # co-refinement
+print(preds_labeled_avg.shape)
+print(labeled_labels.shape)
 
-# labels_refined = (W_P * (preds_labeled_list[0]) + (1 - W_P) * preds_labeled + W_P * (preds_labeled_list[1]) + (1 - W_P) * preds_labeled)/2  # make int
-# labels_shapened =  sharpen(labels_refined, T)
+labels_refined = (W_P * (preds_labeled_avg) + (1 - W_P) * labeled_labels)
+# print(psutil.virtual_memory())
+
+labels_shapened =  sharpen(labels_refined, T)
+
 
 # # co-guessing
 # preds_unlabeled_1 = predict_batchwise(net1, unlabeled_dataset_augmented)

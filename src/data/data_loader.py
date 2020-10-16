@@ -35,10 +35,10 @@ class dataset():
     def co_divide(self, labeled_idx, unlabeled_idx):
 
         labeled_iamges = self.train_images[labeled_idx]
-        labeled_labels = self.train_labels[labeled_idx]
+        labeled_labels = self.train_labels[labeled_idx].reshape(-1)
 
         unlabeled_images = self.train_images[unlabeled_idx]
-        unlabeled_labels = self.train_labels[unlabeled_idx]
+        unlabeled_labels = self.train_labels[unlabeled_idx].reshape(-1)
 
 
         return labeled_iamges, labeled_labels, unlabeled_images, unlabeled_labels
