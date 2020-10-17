@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import random
-
-
+from sklearn.preprocessing import OneHotEncoder
+from keras.utils import to_categorical
 from tensorflow.keras import datasets, layers, models
 
 class dataset():
@@ -34,11 +34,13 @@ class dataset():
     
     def co_divide(self, labeled_idx, unlabeled_idx):
 
-        labeled_iamges = self.train_images[labeled_idx]
+        labeled_images = self.train_images[labeled_idx]
         labeled_labels = self.train_labels[labeled_idx].reshape(-1)
-
+        labeled_labels_onehot = to_categorical(labeled_labels)
+        
         unlabeled_images = self.train_images[unlabeled_idx]
         unlabeled_labels = self.train_labels[unlabeled_idx].reshape(-1)
+        unlabeled_labels_onehot = to_categorical(unlabeled_labels)
 
 
-        return labeled_iamges, labeled_labels, unlabeled_images, unlabeled_labels
+        return labeled_images, labeled_labels, unlabeled_images, unlabeled_labels, labeled_labels_onehot, unlabeled_labels_onehot
