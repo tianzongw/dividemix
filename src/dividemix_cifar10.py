@@ -13,6 +13,8 @@ MAX_EPOCH = 2
 W_P = 0.5
 T = 0.1
 M = 2
+alpha = 4
+
 cifar10 = dataset("cifar10")
 
 
@@ -60,13 +62,16 @@ all_inputs = []
 
 for i in range(M):
     labeled_dataset_augmented = augment(labeled_dataset, BATCH_SIZE)
-    unlabeled_dataset_augmented = augment(unlabeled_dataset, BATCH_SIZE)
-    
     all_inputs.append(extract_img_from_dataset(labeled_dataset_augmented))
-    all_inputs.append(extract_img_from_dataset(unlabeled_dataset_augmented))
 
     preds_labeled = predict_batchwise(net1, labeled_dataset_augmented)
     preds_labeled_list.append(preds_labeled)
+
+
+for i in range(M):
+    unlabeled_dataset_augmented = augment(unlabeled_dataset, BATCH_SIZE) 
+    all_inputs.append(extract_img_from_dataset(unlabeled_dataset_augmented))
+
 
     preds_unlabeled_1 = predict_batchwise(net1, unlabeled_dataset_augmented)
     preds_unlabeled_list.append(preds_unlabeled_1)  
@@ -93,10 +98,20 @@ preds_sharpened = sharpen(preds_unlabeled_avg, T)
 
 # mixmatch
 all_inputs = np.concatenate(all_inputs)
-all_targets = np.concatenate([labels_shapened, preds_sharpened, labels_shapened, preds_sharpened])
+all_targets = np.concatenate([labels_shapened, labels_shapened, preds_sharpened, preds_sharpened])
 
 idx = np.random.shuffle(np.arange(all_inputs.shape[0]))
 
 input_a, input_b = all_inputs, all_inputs[idx]
 target_a, target_b = all_targets, all_targets[idx]
+
+l = np.random.beta(alpha, alpha)        
+l = max(l, 1-l)
+
+mixed_input = l * input_a + (1 - l) * input_b        
+mixed_target = l * target_a + (1 - l) * target_b
+
+logits = predict_batchwise(net1, mixed_input)
+logits_x, logits_u = logits[ : len(labels_shapened)*2, :], logits[len(labels_shapened)*2 : , :]
+mixed_target_x, mixed_target_u = mixed_target[ : len(labels_shapened)*2, :], mixed_target[len(labels_shapened)*2 : , :]
 
