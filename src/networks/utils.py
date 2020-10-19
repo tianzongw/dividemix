@@ -24,11 +24,15 @@ def test_step(model, metrics, images, labels, all_metrics = False):
 
 def predict_batchwise(model, dataset):
     predicted = []
-    for batch_images, batch_labels in dataset:
-        predicted.append(model(batch_images, training = False))
-        # print(predicted[-1])
-    # return tf.argmax(tf.concat(predicted, axis = 0), axis = 1).numpy()
-    return tf.concat(predicted, axis = 0).numpy()
+    try:
+        for batch_images, _ in dataset:
+            predicted.append(model(batch_images, training = False).numpy())
+    except Exception as e:
+        # print(e)
+        for batch_images in dataset:
+            predicted.append(model(batch_images, training = False).numpy())
+    # print(len(predicted))
+    return np.concatenate(predicted, axis = 0)
 
 
 def samplewise_loss(model, dataset, all_metrics = True):
