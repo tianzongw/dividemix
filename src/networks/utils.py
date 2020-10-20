@@ -101,5 +101,6 @@ def extract_img_from_dataset(dateset):
     return np.concatenate(images)
 
 
-
-
+def linear_rampup(current, warm_up, rampup_length=16, lambda_u = 25):
+    current = np.clip((current-warm_up) / rampup_length, 0.0, 1.0)
+    return lambda_u*float(current)

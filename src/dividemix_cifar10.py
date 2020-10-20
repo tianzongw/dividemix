@@ -24,8 +24,8 @@ cifar10_dataset = data2tensor(cifar10.train_images, cifar10.train_labels, BATCH_
 
 cifar10_augmented = augment(cifar10_dataset, BATCH_SIZE)
 net1 =  get_model("preact", 32, 32, 3)
-
-net2 = net1
+print('load network')
+# net2 = net1
 # net2 =  get_model("preact", 32, 32, 3)
 
 
@@ -38,7 +38,7 @@ except:
 
 # for epoch in MAX_EPOCH:
 
-
+# print('load weights')
 
 # model per-sample loss 
 net1_loss = samplewise_loss(net1, cifar10_augmented, all_metrics=False)
@@ -55,6 +55,7 @@ labeled_images, labeled_labels, unlabeled_images, unlabeled_labels, labeled_labe
 labeled_dataset = data2tensor(labeled_images, labeled_labels, BATCH_SIZE)
 unlabeled_dataset = data2tensor(unlabeled_images, unlabeled_labels, BATCH_SIZE)
 
+# print('before augment')
 
 # augmentation
 preds_labeled_list = []
@@ -77,9 +78,10 @@ for i in range(M):
     preds_unlabeled_1 = predict_batchwise(net1, unlabeled_dataset_augmented)
     preds_unlabeled_list.append(preds_unlabeled_1)  
 
-    preds_unlabeled_2 = predict_batchwise(net2, unlabeled_dataset_augmented)
+    preds_unlabeled_2 = predict_batchwise(net1, unlabeled_dataset_augmented)
     preds_unlabeled_list.append(preds_unlabeled_2)
 
+# print('after augment')
 
 preds_labeled_list = np.array(preds_labeled_list)
 preds_labeled_avg = np.mean(preds_labeled_list, axis = 0)
@@ -95,7 +97,6 @@ labels_shapened =  sharpen(labels_refined, T)
 
 # co-guessing
 preds_sharpened = sharpen(preds_unlabeled_avg, T)
-
 
 # mixmatch
 all_inputs = np.concatenate(all_inputs)
@@ -129,9 +130,8 @@ mixed_target = l * target_a + (1 - l) * target_b
 # logits_x = tf.convert_to_tensor(logits_x, dtype=tf.float32)
 # logits_x_dataset = tf.data.Dataset.from_tensor_slices((logits_x)).batch(batch_size=BATCH_SIZE)
 
-mixed_input_x, mixed_input_u = mixed_input[ : len(labels_shapened)*2, :], mixed_target[len(labels_shapened)*2 : , :]
+mixed_input_x, mixed_input_u = mixed_input[ : len(labels_shapened)*2, :], mixed_input[len(labels_shapened)*2 : , :]
 mixed_target_x, mixed_target_u = mixed_target[ : len(labels_shapened)*2, :], mixed_target[len(labels_shapened)*2 : , :]
-
 
 
 
@@ -145,6 +145,7 @@ mixed_target_x = tf.convert_to_tensor(mixed_target_x, dtype=tf.float32)
 
 mixed_target_u = tf.convert_to_tensor(mixed_target_u, dtype=tf.float32)
 
+print(len(mixed_input_x), len(mixed_input_u))
 # mixed_target_x_dataset = tf.data.Dataset.from_tensor_slices((mixed_target_x)).batch(batch_size=BATCH_SIZE)
 # iter_mixed_target_x_dataset = iter(mixed_target_x_dataset)
 
@@ -152,11 +153,13 @@ mixed_target_u = tf.convert_to_tensor(mixed_target_u, dtype=tf.float32)
 mixed_dataset_x = tf.data.Dataset.from_tensor_slices((mixed_input_x, mixed_target_x)).batch(batch_size=BATCH_SIZE)
 mixed_dataset_u = tf.data.Dataset.from_tensor_slices((mixed_input_u, mixed_target_u)).batch(batch_size=BATCH_SIZE)
 
-iter_mixed_dataset_u = iter(mixed_dataset_u)
+# iter_mixed_dataset_u = iter(mixed_dataset_u)
+iter_mixed_dataset_x = iter(mixed_dataset_x)
 
 
 
-loss_object = tf.keras.losses.CategoricalCrossentropy()
+Lx = tf.keras.losses.CategoricalCrossentropy()
+Lu = tf.keras.losses.MeanSquaredError()
 optimizer = tf.keras.optimizers.Adadelta()
 
 train_loss = tf.keras.metrics.Mean(name='train_loss')
@@ -165,20 +168,31 @@ i = 0
 # for mixed_input_x_batch in mixed_input_x_dataset:
 #     mixed_target_x_batch = iter_mixed_target_x_dataset.get_next()
 
-for mixed_input_x_batch, mixed_target_x_batch in mixed_dataset_x:
-    mixed_input_u_batch, mixed_target_u_batch = iter_mixed_dataset_u.get_next()
+
+# for mixed_input_x_batch, mixed_target_x_batch in mixed_dataset_x:
+for mixed_input_u_batch, mixed_target_u_batch in mixed_dataset_u:
+
+    mixed_input_x_batch, mixed_target_x_batch = iter_mixed_dataset_x.get_next() #FIXME
+    # print(mixed_dataset_x.shape)
+    print(mixed_input_x_batch.shape)
+    print(mixed_input_u_batch.shape)
+
     with tf.GradientTape() as tape:
-        logits_x_batch = net1(mixed_input_x_batch, training=True)  
-        loss = loss_object(y_true=mixed_target_x_batch, y_pred=logits_x_batch)
+        logits_x_batch = net1(mixed_input_x_batch, training=True)
+        logits_u_batch = net1(mixed_input_u_batch, training=True)
+
+        loss = Lx(y_true=mixed_target_x_batch, y_pred=logits_x_batch) +Lu(y_true=mixed_target_u_batch, y_pred=logits_u_batch)
     gradients = tape.gradient(loss, net1.trainable_variables)
     optimizer.apply_gradients(grads_and_vars=zip(gradients, net1.trainable_variables))
 
-    train_loss(loss)
-    print('loss:', train_loss.result())
+    # train_loss(loss)
+    # print('loss:', train_loss.result())
     train_accuracy(mixed_target_x_batch, logits_x_batch)
-    print('acc:', train_accuracy.result())
     i += 1
-    if i > 1:
+
+    print('batch', i, 'acc:', train_accuracy.result())
+    
+    if i > 100:
         break
 
 
