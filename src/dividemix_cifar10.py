@@ -3,7 +3,7 @@ import numpy as np
 
 from data.data_loader import dataset
 from networks.network import get_model, train_model
-from networks.utils import augment, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset
+from networks.utils import augment, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup
 from sklearn.mixture import GaussianMixture
 
 threshold  = 0.4
@@ -113,22 +113,6 @@ l = max(l, 1-l)
 mixed_input = l * input_a + (1 - l) * input_b  
 mixed_target = l * target_a + (1 - l) * target_b
 
-# subset_number = 40
-# subset_size = int(len(mixed_input) / subset_number)
-
-# logits = []
-# for i in range(subset_number):
-#     subset_images = mixed_input[i * subset_size: (i+1)*subset_size ]
-#     subset_images = tf.convert_to_tensor(subset_images, dtype=tf.float32)
-#     subset_dataset = tf.data.Dataset.from_tensor_slices((subset_images)).batch(batch_size=BATCH_SIZE)
-#     logits.append(predict_batchwise(net1, subset_dataset))
-    
-# logits = np.concatenate(logits)
-
-# logits_x, logits_u = logits[ : len(labels_shapened)*2, :], logits[len(labels_shapened)*2 : , :]
-
-# logits_x = tf.convert_to_tensor(logits_x, dtype=tf.float32)
-# logits_x_dataset = tf.data.Dataset.from_tensor_slices((logits_x)).batch(batch_size=BATCH_SIZE)
 
 mixed_input_x, mixed_input_u = mixed_input[ : len(labels_shapened)*2, :], mixed_input[len(labels_shapened)*2 : , :]
 mixed_target_x, mixed_target_u = mixed_target[ : len(labels_shapened)*2, :], mixed_target[len(labels_shapened)*2 : , :]
@@ -146,15 +130,13 @@ mixed_target_x = tf.convert_to_tensor(mixed_target_x, dtype=tf.float32)
 mixed_target_u = tf.convert_to_tensor(mixed_target_u, dtype=tf.float32)
 
 print(len(mixed_input_x), len(mixed_input_u))
-# mixed_target_x_dataset = tf.data.Dataset.from_tensor_slices((mixed_target_x)).batch(batch_size=BATCH_SIZE)
-# iter_mixed_target_x_dataset = iter(mixed_target_x_dataset)
 
 
 mixed_dataset_x = tf.data.Dataset.from_tensor_slices((mixed_input_x, mixed_target_x)).batch(batch_size=BATCH_SIZE)
 mixed_dataset_u = tf.data.Dataset.from_tensor_slices((mixed_input_u, mixed_target_u)).batch(batch_size=BATCH_SIZE)
 
-# iter_mixed_dataset_u = iter(mixed_dataset_u)
-iter_mixed_dataset_x = iter(mixed_dataset_x)
+iter_mixed_dataset_u = iter(mixed_dataset_u)
+# iter_mixed_dataset_x = iter(mixed_dataset_x)
 
 
 
@@ -165,23 +147,34 @@ optimizer = tf.keras.optimizers.Adadelta()
 train_loss = tf.keras.metrics.Mean(name='train_loss')
 train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
 i = 0
-# for mixed_input_x_batch in mixed_input_x_dataset:
-#     mixed_target_x_batch = iter_mixed_target_x_dataset.get_next()
 
+for mixed_input_x_batch, mixed_target_x_batch in mixed_dataset_x:
+# for mixed_input_u_batch, mixed_target_u_batch in mixed_dataset_u:
+ 
+    try:
+        mixed_input_u_batch, mixed_target_u_batch = iter_mixed_dataset_u.get_next()
+    except:
+        iter_mixed_dataset_u = iter(mixed_dataset_u)
+        mixed_input_u_batch, mixed_target_u_batch = iter_mixed_dataset_u.get_next()
 
-# for mixed_input_x_batch, mixed_target_x_batch in mixed_dataset_x:
-for mixed_input_u_batch, mixed_target_u_batch in mixed_dataset_u:
-
-    mixed_input_x_batch, mixed_target_x_batch = iter_mixed_dataset_x.get_next() #FIXME
-    # print(mixed_dataset_x.shape)
-    print(mixed_input_x_batch.shape)
-    print(mixed_input_u_batch.shape)
+    # regularization
+    # prior = torch.ones(args.num_class)/args.num_class
+    # pred_mean = torch.softmax(logits, dim=1).mean(0)
+    # penalty = torch.sum(prior*torch.log(prior/pred_mean))
 
     with tf.GradientTape() as tape:
         logits_x_batch = net1(mixed_input_x_batch, training=True)
         logits_u_batch = net1(mixed_input_u_batch, training=True)
+        
+        # stack above 2 logits
+        # take mean by 0 axis as pred_mean
+        # create a uniform prior regarding to # classes aas prior
+        # compute sum(prior*log(prior/pred_mean))
 
-        loss = Lx(y_true=mixed_target_x_batch, y_pred=logits_x_batch) +Lu(y_true=mixed_target_u_batch, y_pred=logits_u_batch)
+        loss = Lx(y_true=mixed_target_x_batch, y_pred=logits_x_batch) +\
+               Lu(y_true=mixed_target_u_batch, y_pred=logits_u_batch) * linear_rampup(MAX_EPOCH, WARMUP_EPOCH) 
+            #    +\penalty
+        
     gradients = tape.gradient(loss, net1.trainable_variables)
     optimizer.apply_gradients(grads_and_vars=zip(gradients, net1.trainable_variables))
 
@@ -191,9 +184,6 @@ for mixed_input_u_batch, mixed_target_u_batch in mixed_dataset_u:
     i += 1
 
     print('batch', i, 'acc:', train_accuracy.result())
-    
-    if i > 100:
-        break
 
 
 
