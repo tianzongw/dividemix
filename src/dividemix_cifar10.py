@@ -9,7 +9,7 @@ from sklearn.mixture import GaussianMixture
 threshold  = 0.4
 BATCH_SIZE = 1024
 WARMUP_EPOCH = 10
-MAX_EPOCH = 2
+MAX_EPOCH = 20
 W_P = 0.5
 T = 0.1
 M = 2
@@ -24,7 +24,6 @@ cifar10_dataset = data2tensor(cifar10.train_images, cifar10.train_labels, BATCH_
 
 cifar10_augmented = augment(cifar10_dataset, BATCH_SIZE)
 net1 =  get_model("preact", 32, 32, 3)
-print('load network')
 net2 = net1
 # net2 =  get_model("preact", 32, 32, 3)
 
@@ -49,7 +48,7 @@ for epoch in range(MAX_EPOCH):
     prob = prob[:,gmm.means_.argmin()]    
     ind_labeled = prob > threshold
     ind_unlabeled = prob < threshold
-
+    print(sum(ind_labeled), sum(ind_unlabeled))
     # co-divide
     labeled_images, labeled_labels, unlabeled_images, unlabeled_labels, labeled_labels_onehot, unlabeled_labels_onehot= cifar10.co_divide(ind_labeled, ind_unlabeled) # not augmented
     labeled_dataset = data2tensor(labeled_images, labeled_labels, BATCH_SIZE)
@@ -129,7 +128,6 @@ for epoch in range(MAX_EPOCH):
 
     mixed_target_u = tf.convert_to_tensor(mixed_target_u, dtype=tf.float32)
 
-    print(len(mixed_input_x), len(mixed_input_u))
 
 
     mixed_dataset_x = tf.data.Dataset.from_tensor_slices((mixed_input_x, mixed_target_x)).batch(batch_size=BATCH_SIZE)
@@ -171,14 +169,17 @@ for epoch in range(MAX_EPOCH):
             logits_batch = tf.concat([logits_x_batch, logits_u_batch], 0)
             # print(logits_batch.shape)
             # print('stack_worked')
+
             # take mean by 0 axis as pred_mean
             pred_mean = tf.math.reduce_mean(tf.nn.softmax(logits_batch, axis=1), axis = 0)
             # print(pred_mean.shape)
             # print('softmax+mean worked')
+
             # create a uniform prior regarding to # classes aas prior
             prior = tf.ones(num_class)/num_class
             # print(prior)
             # print('prior worked')
+            
             # compute penalty = torch.sum(prior*torch.log(prior/pred_mean))
             penalty = tf.math.reduce_sum(prior*tf.math.log(prior/pred_mean))
             # print(penalty)
@@ -196,7 +197,7 @@ for epoch in range(MAX_EPOCH):
         train_accuracy(mixed_target_x_batch, logits_x_batch)
         i += 1
 
-        print('batch', i, 'acc:', train_accuracy.result())
+        print('epoch', epoch, 'batch', i, 'acc:', train_accuracy.result())
 
 
 
