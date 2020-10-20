@@ -133,12 +133,28 @@ mixed_input_x, mixed_input_u = mixed_input[ : len(labels_shapened)*2, :], mixed_
 mixed_target_x, mixed_target_u = mixed_target[ : len(labels_shapened)*2, :], mixed_target[len(labels_shapened)*2 : , :]
 
 
+
+
 mixed_input_x = tf.convert_to_tensor(mixed_input_x, dtype=tf.float32)
-mixed_input_x_dataset = tf.data.Dataset.from_tensor_slices((mixed_input_x)).batch(batch_size=BATCH_SIZE)
+# mixed_input_x_dataset = tf.data.Dataset.from_tensor_slices((mixed_input_x)).batch(batch_size=BATCH_SIZE)
+
+mixed_input_u = tf.convert_to_tensor(mixed_input_u, dtype=tf.float32)
+
 
 mixed_target_x = tf.convert_to_tensor(mixed_target_x, dtype=tf.float32)
-mixed_target_x_dataset = tf.data.Dataset.from_tensor_slices((mixed_target_x)).batch(batch_size=BATCH_SIZE)
-iter_mixed_target_x_dataset = iter(mixed_target_x_dataset)
+
+mixed_target_u = tf.convert_to_tensor(mixed_target_u, dtype=tf.float32)
+
+# mixed_target_x_dataset = tf.data.Dataset.from_tensor_slices((mixed_target_x)).batch(batch_size=BATCH_SIZE)
+# iter_mixed_target_x_dataset = iter(mixed_target_x_dataset)
+
+
+mixed_dataset_x = tf.data.Dataset.from_tensor_slices((mixed_input_x, mixed_target_x)).batch(batch_size=BATCH_SIZE)
+mixed_dataset_u = tf.data.Dataset.from_tensor_slices((mixed_input_u, mixed_target_u)).batch(batch_size=BATCH_SIZE)
+
+iter_mixed_dataset_u = iter(mixed_dataset_u)
+
+
 
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 optimizer = tf.keras.optimizers.Adadelta()
@@ -146,8 +162,11 @@ optimizer = tf.keras.optimizers.Adadelta()
 train_loss = tf.keras.metrics.Mean(name='train_loss')
 train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
 i = 0
-for mixed_input_x_batch in mixed_input_x_dataset:
-    mixed_target_x_batch = iter_mixed_target_x_dataset.get_next()
+# for mixed_input_x_batch in mixed_input_x_dataset:
+#     mixed_target_x_batch = iter_mixed_target_x_dataset.get_next()
+
+for mixed_input_x_batch, mixed_target_x_batch in mixed_dataset_x:
+    mixed_input_u_batch, mixed_target_u_batch = iter_mixed_dataset_u.get_next()
     with tf.GradientTape() as tape:
         logits_x_batch = net1(mixed_input_x_batch, training=True)  
         loss = loss_object(y_true=mixed_target_x_batch, y_pred=logits_x_batch)
