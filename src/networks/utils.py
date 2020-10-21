@@ -62,7 +62,7 @@ def samplewise_loss(model, dataset, all_metrics = True):
 def data2tensor(train_images, train_labels, batch_size):
     train_images = tf.convert_to_tensor(train_images, dtype=tf.float32)
     train_labels = tf.convert_to_tensor(train_labels, dtype=tf.float32)
-    train_dataset = tf.data.Dataset.from_tensor_slices((train_images/255, train_labels)).batch(batch_size=batch_size)
+    train_dataset = tf.data.Dataset.from_tensor_slices((train_images, train_labels)).batch(batch_size=batch_size)
 
     return train_dataset
 

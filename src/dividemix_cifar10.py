@@ -1,15 +1,16 @@
 import tensorflow as tf
 import numpy as np
-
+physical_devices = tf.config.list_physical_devices('GPU') 
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from data.data_loader import dataset
-from networks.network import get_model, train_model
+from networks.network import get_model, train_model, predict_model
 from networks.utils import augment, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup
 from sklearn.mixture import GaussianMixture
 
 threshold  = 0.4
-BATCH_SIZE = 1024
-WARMUP_EPOCH = 10
-MAX_EPOCH = 20
+BATCH_SIZE = 512
+WARMUP_EPOCH = 30
+MAX_EPOCH = 100
 W_P = 0.5
 T = 0.1
 M = 2
@@ -24,13 +25,19 @@ cifar10_dataset = data2tensor(cifar10.train_images, cifar10.train_labels, BATCH_
 
 cifar10_augmented = augment(cifar10_dataset, BATCH_SIZE)
 net1 =  get_model("preact", 32, 32, 3)
-net2 = net1
-# net2 =  get_model("preact", 32, 32, 3)
+#net2 = net1
+net2 =  get_model("preact", 32, 32, 3)
 
+test_dataset = data2tensor(cifar10.test_images, cifar10.test_labels, BATCH_SIZE)
 
 # warmup
 try: 
-    net1.load_weights('./models/checkpoint')
+    # net1.load_weights('./models/checkpoint')
+    train_model(net1, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
+    train_model(net2, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
+    net1.save_weights('./models/checkpoint1')
+    net2.save_weights('./models/checkpoint2')
+
 except:
     train_model(net1, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
     net1.save_weights('./models/checkpoint')
@@ -38,7 +45,11 @@ except:
 # for epoch in MAX_EPOCH:
 
 # print('load weights')
-for epoch in range(MAX_EPOCH):
+
+predict_model(net1,test_dataset)
+predict_model(net2,test_dataset)
+
+def divmix_step(net1, net2, epoch):
     # model per-sample loss 
     net1_loss = samplewise_loss(net1, cifar10_augmented, all_metrics=False)
     net1_loss = normlize_loss(net1_loss)
@@ -199,8 +210,16 @@ for epoch in range(MAX_EPOCH):
 
         print('epoch', epoch, 'batch', i, 'acc:', train_accuracy.result())
 
-
-
+acc_list_1 = []
+acc_list_2 = []
+for epoch in range(MAX_EPOCH):
+    divmix_step(net1, net2, epoch)
+    divmix_step(net2, net1, epoch)
+    
+    acc_list_1.append(predict_model(net1, test_dataset))
+    acc_list_2.append(predict_model(net2, test_dataset))
+    print(acc_list_1)
+    print(acc_list_2)
 
 
 

@@ -2,6 +2,7 @@ import math
 from tensorflow.keras import datasets
 import tensorflow as tf
 from .utils import augment
+import numpy as np
 
 EPOCHS = 50
 BATCH_SIZE = 8
@@ -235,6 +236,7 @@ def train_model(model, train_dataset, batch_size, epochs):
     train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='train_accuracy')
 
     for epoch in range(epochs):
+
             train_loss.reset_states()
             train_accuracy.reset_states()
             # valid_loss.reset_states()
@@ -251,18 +253,19 @@ def train_model(model, train_dataset, batch_size, epochs):
                                                                                         train_accuracy.result()))
 
 
-            print("Epoch: {}/{}, train loss: {:.5f}, train accuracy: {:.5f}, ".format(epoch + 1,
-                                                                    epochs,
-                                                                    train_loss.result(),
-                                                                    train_accuracy.result()
-                                                                    ))
+            # print("Epoch: {}/{}, train loss: {:.5f}, train accuracy: {:.5f}, ".format(epoch + 1,
+            #                                                         epochs,
+            #                                                         train_loss.result(),
+            #                                                         train_accuracy.result()
+            #                                                         ))
+            print("________")
+            predict_model(model, train_dataset)
+            print("________")
+            
 
 
-def predict_model(model, images, labels, batch_size):
+def predict_model(model,test_dataset):
 
-    images = tf.convert_to_tensor(images, dtype=tf.float32)
-    labels = tf.convert_to_tensor(labels, dtype=tf.float32)
-    train_dataset = tf.data.Dataset.from_tensor_slices((images/255, labels)).batch(batch_size=batch_size)
 
 
     loss_object = tf.keras.metrics.SparseCategoricalCrossentropy()
@@ -271,16 +274,18 @@ def predict_model(model, images, labels, batch_size):
 
     @tf.function
     def test_step(images, labels):
-        predictions = model(images, training=False)
+        predictions = model(images, training=True)
         t_loss = loss_object(labels, predictions)
 
         test_loss(t_loss)
         test_accuracy(labels, predictions)
-
+    acc_list = []
     for batch_images, batch_labels in test_dataset:
         test_step(batch_images, batch_labels)
-        print("loss: {:.5f}, test accuracy: {:.5f}".format(test_loss.result(),
-                                                            test_accuracy.result()))
+        acc_list.append(test_accuracy.result())
+        # print("loss: {:.5f}, test accuracy: {:.5f}".format(test_loss.result(),
+        #                                                     test_accuracy.result()))
 
-    print("The accuracy on test set is: {:.3f}%".format(test_accuracy.result()*100))
-    return 
+    print("The accuracy on test set is: {:.3f}%".format(np.mean(acc_list)*100))
+    return np.mean(acc_list)*100
+
