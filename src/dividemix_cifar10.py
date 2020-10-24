@@ -52,11 +52,11 @@ predict_model(net2,test_dataset)
 
 def divmix_step(net1, net2, epoch):
     # model per-sample loss 
-    net1_loss = samplewise_loss(net1, cifar10_augmented, all_metrics=False)
-    net1_loss = normlize_loss(net1_loss)
+    net2_loss = samplewise_loss(net2, cifar10_augmented, all_metrics=False)
+    net2_loss = normlize_loss(net2_loss)
     gmm = GaussianMixture(n_components=2,max_iter=10,tol=1e-2,reg_covar=5e-4)
-    gmm.fit(tf.reshape(net1_loss, (-1, 1)))
-    prob = gmm.predict_proba(tf.reshape(net1_loss, (-1, 1))) 
+    gmm.fit(tf.reshape(net2_loss, (-1, 1)))
+    prob = gmm.predict_proba(tf.reshape(net2_loss, (-1, 1))) 
     prob = prob[:,gmm.means_.argmin()]    
     ind_labeled = prob > threshold
     ind_unlabeled = prob < threshold
