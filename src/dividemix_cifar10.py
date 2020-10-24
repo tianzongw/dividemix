@@ -7,9 +7,9 @@ from networks.network import get_model, train_model, predict_model
 from networks.utils import augment, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup
 from sklearn.mixture import GaussianMixture
 
-threshold  = 0.4
+threshold  = 0.5
 BATCH_SIZE = 512
-WARMUP_EPOCH = 30
+WARMUP_EPOCH = 10
 MAX_EPOCH = 100
 W_P = 0.5
 T = 0.1
@@ -32,11 +32,12 @@ test_dataset = data2tensor(cifar10.test_images, cifar10.test_labels, BATCH_SIZE)
 
 # warmup
 try: 
-    # net1.load_weights('./models/checkpoint')
-    train_model(net1, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
-    train_model(net2, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
-    net1.save_weights('./models/checkpoint1')
-    net2.save_weights('./models/checkpoint2')
+    net1.load_weights('./models/checkpoint1')
+    net2.load_weights('./models/checkpoint2')
+    # train_model(net1, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
+    # train_model(net2, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
+    # net1.save_weights('./models/checkpoint1')
+    # net2.save_weights('./models/checkpoint2')
 
 except:
     train_model(net1, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
@@ -59,10 +60,13 @@ def divmix_step(net1, net2, epoch):
     prob = prob[:,gmm.means_.argmin()]    
     ind_labeled = prob > threshold
     ind_unlabeled = prob < threshold
+    w_x = prob[ind_labeled].reshape(-1, 1)
+    print("Data split:")
     print(sum(ind_labeled), sum(ind_unlabeled))
     # co-divide
     labeled_images, labeled_labels, unlabeled_images, unlabeled_labels, labeled_labels_onehot, unlabeled_labels_onehot= cifar10.co_divide(ind_labeled, ind_unlabeled) # not augmented
     labeled_dataset = data2tensor(labeled_images, labeled_labels, BATCH_SIZE)
+    print(labeled_dataset)
     unlabeled_dataset = data2tensor(unlabeled_images, unlabeled_labels, BATCH_SIZE)
 
     # print('before augment')
@@ -89,7 +93,7 @@ def divmix_step(net1, net2, epoch):
         preds_unlabeled_list.append(preds_unlabeled_1)  
 
         preds_unlabeled_2 = predict_batchwise(net2, unlabeled_dataset_augmented)
-        preds_unlabeled_list.append(preds_unlabeled_2)
+        preds_unlabeled_list.append(preds_unlabeled_2) 
 
     # print('after augment')
 
@@ -102,7 +106,8 @@ def divmix_step(net1, net2, epoch):
     del(preds_unlabeled_list)
 
     # co-refinement
-    labels_refined = (W_P * (preds_labeled_avg) + (1 - W_P) * labeled_labels_onehot)
+    labels_refined = (w_x * (preds_labeled_avg) + (1 - w_x) * labeled_labels_onehot)
+    print("shape labels refined", labels_refined.shape)
     labels_shapened =  sharpen(labels_refined, T)
 
     # co-guessing

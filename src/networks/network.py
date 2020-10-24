@@ -207,7 +207,8 @@ def preact_resnet_18():
 
 def get_model(model_name, image_height, image_width, channels = 3):
     if model_name == "preact":
-        model = preact_resnet_18()
+        #model = preact_resnet_18()
+        model = resnet_18()
     else:
         model = resnet_18()
     model.build(input_shape=(None, image_height, image_width, channels))
@@ -230,7 +231,7 @@ def train_model(model, train_dataset, batch_size, epochs):
         train_accuracy(labels, predictions)
 
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
-    optimizer = tf.keras.optimizers.Adadelta()
+    optimizer = tf.keras.optimizers.SGD(learning_rate=0.02)
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='train_accuracy')
