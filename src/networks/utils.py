@@ -106,5 +106,5 @@ def linear_rampup(current, warm_up, rampup_length=16, lambda_u = 25):
     return lambda_u*float(current)
 
 def compare_to_mask(mask1, mask2):
-    return sum(mask1 == mask2)/len(mask1)
+    return sum(mask1*2-1 == mask2 ), sum(mask1), sum(mask2)
     

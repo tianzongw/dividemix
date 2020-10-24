@@ -4,7 +4,7 @@ physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from data.data_loader import dataset
 from networks.network import get_model, train_model, predict_model
-from networks.utils import augment, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup
+from networks.utils import augment, compare_to_mask, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup
 from sklearn.mixture import GaussianMixture
 
 threshold  = 0.5
@@ -63,6 +63,8 @@ def divmix_step(net1, net2, epoch):
     w_x = prob[ind_labeled].reshape(-1, 1)
     print("Data split:")
     print(sum(ind_labeled), sum(ind_unlabeled))
+
+    print("nise identified : ", compare_to_mask(ind_unlabeled, cifar10.mask_used))
     # co-divide
     labeled_images, labeled_labels, unlabeled_images, unlabeled_labels, labeled_labels_onehot, unlabeled_labels_onehot= cifar10.co_divide(ind_labeled, ind_unlabeled) # not augmented
     labeled_dataset = data2tensor(labeled_images, labeled_labels, BATCH_SIZE)
