@@ -26,6 +26,7 @@ class dataset():
     def noisify(self, mode, ratio = 0.4):
         
         mask = np.random.choice(2, len(self.train_labels), p = [1 - ratio, ratio])
+        self.mask_used = mask
         self.noisy_train_labels = self.train_labels.copy()
         
         for i in range(len(self.train_labels)):          
