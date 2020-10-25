@@ -52,7 +52,14 @@ def samplewise_loss(model, dataset, all_metrics = True):
         if all_metrics:
             loss_all.append(test_step(model, metrics, batch_images, batch_labels, all_metrics)[0])
         else:
-            loss_all.append(test_step(model, metrics, batch_images, batch_labels, all_metrics))        
+            res = test_step(model, metrics, batch_images, batch_labels, all_metrics)
+            # print("res")
+            # print(res)
+            n_res = normlize_loss(res)
+            # print("nres")
+            # print(n_res)
+            # print("____")
+            loss_all.append( n_res )    
         
 
     loss_all = tf.concat(loss_all, -1)
@@ -69,7 +76,7 @@ def data2tensor(train_images, train_labels, batch_size):
     
 
 def normlize_loss(losses):
-    return (losses-tf.math.reduce_min(losses)/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
+    return ((losses-tf.math.reduce_min(losses))/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
 
 
 def augment(dataset, batch_size):
