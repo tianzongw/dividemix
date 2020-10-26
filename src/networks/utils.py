@@ -11,8 +11,6 @@ def test_step(model, metrics, images, labels, all_metrics = False):
     test_loss = metrics['test_loss']
 
     predictions = model(images, training=True)
-    
-    
     loss_elementwise = cate_cross_entropy(labels, predictions)
     loss = test_loss(loss_elementwise)
     accuracy = acc(labels, predictions)
@@ -20,20 +18,6 @@ def test_step(model, metrics, images, labels, all_metrics = False):
     if all_metrics:
         return loss_elementwise, loss, accuracy
     return loss_elementwise
-
-
-def predict_batchwise(model, dataset):
-    predicted = []
-    try:
-        for batch_images, _ in dataset:
-            predicted.append(model(batch_images, training = True).numpy())
-    except Exception as e:
-        # print(e)
-        for batch_images in dataset:
-            predicted.append(model(batch_images, training = True).numpy())
-    # print(len(predicted))
-    return np.concatenate(predicted, axis = 0)
-
 
 def samplewise_loss(model, dataset, all_metrics = True):
     '''
@@ -46,24 +30,26 @@ def samplewise_loss(model, dataset, all_metrics = True):
 
     loss_all = []
 
-    i = 0
     for batch_images, batch_labels in dataset:
-        i+=1
         if all_metrics:
             loss_all.append(test_step(model, metrics, batch_images, batch_labels, all_metrics)[0])
         else:
             res = test_step(model, metrics, batch_images, batch_labels, all_metrics)
-            # print("res")
-            # print(res)
             n_res = normlize_loss(res)
-            # print("nres")
-            # print(n_res)
-            # print("____")
             loss_all.append( n_res )    
         
-
     loss_all = tf.concat(loss_all, -1)
     return loss_all
+
+def predict_batchwise(model, dataset):
+    predicted = []
+    try:
+        for batch_images, _ in dataset:
+            predicted.append(model(batch_images, training = True).numpy())
+    except Exception as e:
+        print(e)
+    return np.concatenate(predicted, axis = 0)
+
 
 
 def data2tensor(train_images, train_labels, batch_size):
@@ -76,7 +62,7 @@ def data2tensor(train_images, train_labels, batch_size):
     
 
 def normlize_loss(losses):
-    return ((losses-tf.math.reduce_min(losses))/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
+    return (losses-tf.math.reduce_min(losses))/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses))   
 
 
 def augment(dataset, batch_size):
