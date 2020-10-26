@@ -10,7 +10,7 @@ def test_step(model, metrics, images, labels, all_metrics = False):
     acc = metrics['acc']
     test_loss = metrics['test_loss']
 
-    predictions = model(images, training=False)
+    predictions = model(images, training=True)
     
     
     loss_elementwise = cate_cross_entropy(labels, predictions)
@@ -26,11 +26,11 @@ def predict_batchwise(model, dataset):
     predicted = []
     try:
         for batch_images, _ in dataset:
-            predicted.append(model(batch_images, training = False).numpy())
+            predicted.append(model(batch_images, training = True).numpy())
     except Exception as e:
         # print(e)
         for batch_images in dataset:
-            predicted.append(model(batch_images, training = False).numpy())
+            predicted.append(model(batch_images, training = True).numpy())
     # print(len(predicted))
     return np.concatenate(predicted, axis = 0)
 
