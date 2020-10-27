@@ -78,13 +78,27 @@ def data2tensor(train_images, train_labels, batch_size):
 def normlize_loss(losses):
     return ((losses-tf.math.reduce_min(losses))/(tf.math.reduce_max(losses)-tf.math.reduce_min(losses)))   
 
+import matplotlib.pyplot as plt
 
-def augment(dataset, batch_size):
+def augment(dataset, batch_size, mode = "train"):
     images_combined = []
     labels_combined = []
-    for images, labels in dataset:  
-        iamges = tf.image.resize_with_crop_or_pad(images, 40, 40)
-        images = tf.image.random_crop(iamges , [images.shape[0], 32, 32, 3])
+    for images, labels in dataset: 
+        if mode == 'train':
+            images_new = []
+            for image in images:
+                image = tf.image.resize_with_crop_or_pad(image, 36, 36)
+                
+                image =  tf.image.random_crop(image , [32, 32, 3])
+                images_new.append(image)
+            # img_np = images[5].numpy()
+            # print(np.min(img_np), np.max(img_np))
+
+            # plt.imsave( "a.png", img_np/255.)
+            # print(images[-1].shape)
+            # print(len(images))
+            images = tf.stack(images_new)
+            images = tf.image.random_flip_left_right(images, seed=None)
         images = tf.image.per_image_standardization(images)
         images_combined.append(images)
         labels_combined.append(labels)

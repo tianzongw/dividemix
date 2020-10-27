@@ -3,7 +3,7 @@ from tensorflow.keras import datasets
 import tensorflow as tf
 from .utils import augment
 import numpy as np
-
+from .utils import augment
 EPOCHS = 50
 BATCH_SIZE = 8
 NUM_CLASSES = 10
@@ -207,8 +207,8 @@ def preact_resnet_18():
 
 def get_model(model_name, image_height, image_width, channels = 3):
     if model_name == "preact":
-        #model = preact_resnet_18()
-        model = resnet_18()
+        model = preact_resnet_18()
+        #model = resnet_18()
     else:
         model = resnet_18()
     model.build(input_shape=(None, image_height, image_width, channels))
@@ -216,7 +216,8 @@ def get_model(model_name, image_height, image_width, channels = 3):
     return model
 
 
-def train_model(model, train_dataset, batch_size, epochs):
+def train_model(model, train_dataset, batch_size, epochs, test_dataset = None):
+
 
     @tf.function
     def train_step(images, labels):
@@ -231,13 +232,14 @@ def train_model(model, train_dataset, batch_size, epochs):
         train_accuracy(labels, predictions)
 
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
-    optimizer = tf.keras.optimizers.SGD(learning_rate=0.02)
+    optimizer = tf.keras.optimizers.SGD(learning_rate=0.02, momentum=0.9 )
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='train_accuracy')
 
     for epoch in range(epochs):
-
+            print("augmenting")
+            train_dataset = augment(train_dataset, batch_size)
             train_loss.reset_states()
             train_accuracy.reset_states()
             # valid_loss.reset_states()
@@ -246,12 +248,14 @@ def train_model(model, train_dataset, batch_size, epochs):
             for images, labels in train_dataset:  
                 step += 1
                 train_step(images, labels)
-                print("Epoch: {}/{}, step: {}, loss: {:.5f}, accuracy: {:.5f}".format(epoch + 1,
-                                                                                        epochs,
-                                                                                        step,
-                                                                                        #  math.ceil(train_count / config.BATCH_SIZE),
-                                                                                        train_loss.result(),
-                                                                                        train_accuracy.result()))
+                if (step%50 == 0):
+
+                    print("Epoch: {}/{}, step: {}, loss: {:.5f}, accuracy: {:.5f}".format(epoch + 1,
+                                                                                            epochs,
+                                                                                            step,
+                                                                                            #  math.ceil(train_count / config.BATCH_SIZE),
+                                                                                            train_loss.result(),
+                                                                                            train_accuracy.result()))
 
 
             # print("Epoch: {}/{}, train loss: {:.5f}, train accuracy: {:.5f}, ".format(epoch + 1,
@@ -259,8 +263,12 @@ def train_model(model, train_dataset, batch_size, epochs):
             #                                                         train_loss.result(),
             #                                                         train_accuracy.result()
             #                                                         ))
+
             print("________")
             predict_model(model, train_dataset)
+            if test_dataset is not None:
+                print("test acc:")
+                predict_model(model, test_dataset)
             print("________")
             
 
@@ -287,6 +295,6 @@ def predict_model(model,test_dataset):
         # print("loss: {:.5f}, test accuracy: {:.5f}".format(test_loss.result(),
         #                                                     test_accuracy.result()))
 
-    print("The accuracy on test set is: {:.3f}%".format(np.mean(acc_list)*100))
+    print("The accuracy is: {:.3f}%".format(np.mean(acc_list)*100))
     return np.mean(acc_list)*100
 

@@ -20,8 +20,8 @@ class dataset():
             self.train_images = self.train_images[:num_samples]
             self.train_labels = self.train_labels[:num_samples]
 
-        self.train_images = self.train_images/255.
-        self.test_images = self.test_images/255.
+        self.train_images = self.train_images
+        self.test_images = self.test_images
         
     def noisify(self, mode, ratio = 0.4):
         
