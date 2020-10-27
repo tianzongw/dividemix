@@ -26,11 +26,19 @@ cifar10_augmented = augment(cifar10_dataset, BATCH_SIZE)
 net1 =  get_model("preact", 32, 32, 3)
 net2 =  get_model("preact", 32, 32, 3)
 
+test_dataset_normalized = augment(test_dataset, BATCH_SIZE, mode = 'test')
+
 
 # warmup
 try: 
-    net1.load_weights('./models/checkpoint1')
-    net2.load_weights('./models/checkpoint2')
+    # net1.load_weights('./models/checkpoint1')
+    # net2.load_weights('./models/checkpoint2')
+    print("train 1")
+    warm_up(net1, cifar10_dataset,  BATCH_SIZE, WARMUP_EPOCH, test_dataset_normalized)
+    print("train 2")
+    warm_up(net2, cifar10_dataset,  BATCH_SIZE, WARMUP_EPOCH, test_dataset_normalized)
+    net1.save_weights('./models/checkpoint1')
+    net2.save_weights('./models/checkpoint2')
 
 except:
     warm_up(net1, cifar10_augmented,  BATCH_SIZE, WARMUP_EPOCH)
@@ -44,7 +52,6 @@ except:
 def divmix_step(net1, net2, epoch):
     # model per-sample loss 
     net2_loss = samplewise_loss(net2, cifar10_augmented, all_metrics=False)
-    net2_loss = normlize_loss(net2_loss)
     gmm = GaussianMixture(n_components=2,max_iter=10,tol=1e-2,reg_covar=5e-4)
     gmm.fit(tf.reshape(net2_loss, (-1, 1)))
     prob = gmm.predict_proba(tf.reshape(net2_loss, (-1, 1))) 

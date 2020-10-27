@@ -19,7 +19,7 @@ def test_step(model, metrics, images, labels, all_metrics = False):
         return loss_elementwise, loss, accuracy
     return loss_elementwise
 
-def samplewise_loss(model, dataset, all_metrics = True):
+def samplewise_loss(model, dataset, all_metrics = False):
     '''
     return all losses
     '''

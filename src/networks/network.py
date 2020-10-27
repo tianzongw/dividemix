@@ -215,7 +215,7 @@ def get_model(model_name, image_height, image_width, channels = 3):
     return model
 
 
-def warm_up(model, train_dataset, batch_size, epochs):
+def warm_up(model, train_dataset, batch_size, epochs,test_dataset = None):
 
     @tf.function
     def train_step(images, labels):
@@ -234,20 +234,26 @@ def warm_up(model, train_dataset, batch_size, epochs):
     train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='train_accuracy')
 
     for epoch in range(epochs):
-
+            print("augmenting")
+            train_dataset = augment(train_dataset, batch_size)
             train_loss.reset_states()
             train_accuracy.reset_states()
             step = 0
             for images, labels in train_dataset:  
                 step += 1
                 train_step(images, labels)
-                if step % 30 == 0:
+                if step % 50 == 0:
                     print("Epoch: {}/{}, step: {}, loss: {:.5f}, accuracy: {:.5f}".format(epoch + 1,
                                                                                             epochs,
                                                                                             step,
                                                                                             train_loss.result(),
                                                                                             train_accuracy.result()))
-
+            print("________")
+            predict_model(model, train_dataset)
+            if test_dataset is not None:
+                print("test acc:")
+                predict_model(model, test_dataset)
+            print("________")
             
 
 
