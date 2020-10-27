@@ -50,7 +50,11 @@ def predict_batchwise(model, dataset):
         print(e)
     return np.concatenate(predicted, axis = 0)
 
-
+def manual_acc(model, dataset, true_labels):
+    preds = np.argmax(predict_batchwise(model, dataset), axis = 1).reshape(-1,1)
+    m_acc = sum(preds == true_labels)/len(true_labels)
+    print("The manually calculeted accuracy is: {:.3f}%".format(np.mean(m_acc)*100))
+    return m_acc
 
 def data2tensor(train_images, train_labels, batch_size):
     train_images = tf.convert_to_tensor(train_images, dtype=tf.float32)

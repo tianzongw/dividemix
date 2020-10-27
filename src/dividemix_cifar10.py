@@ -4,7 +4,7 @@ physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from data.data_loader import dataset
 from networks.network import get_model, warm_up, predict_model
-from networks.utils import augment, compare_to_mask, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup
+from networks.utils import augment, compare_to_mask, samplewise_loss, data2tensor, normlize_loss, predict_batchwise, sharpen, extract_img_from_dataset, linear_rampup, manual_acc
 from sklearn.mixture import GaussianMixture
 
 threshold  = 0.5
