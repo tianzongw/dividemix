@@ -24,8 +24,9 @@ if __name__ == '__main__':
 					
 					fig_path = os.path.join(root_dir, 'plots', file[8:-4]+'.jpg')
 					plt.savefig(fig_path)
+					plt.clf()
 				
-				if 'stat' in file:
+				elif 'stat' in file:
 					epochs = []
 					n_labeld_samples = []
 					auc = []
@@ -36,7 +37,7 @@ if __name__ == '__main__':
 								n_labeld_samples.append(int(line.split(':')[1].split(' ')[0]))
 								auc.append(float(line.split(':')[-1]))
 					
-					fig, axs = plt.subplots(1,2)
+					fig, axs = plt.subplots(1,2, figsize=(12,5))
 					axs[0].plot(epochs, n_labeld_samples)
 					axs[0].set_xlabel('epoch')
 					axs[0].set_ylabel('number of labeled samples')
@@ -47,3 +48,5 @@ if __name__ == '__main__':
 					
 					fig_path = os.path.join(root_dir, 'plots', file[8:-4]+'.jpg')
 					plt.savefig(fig_path)
+					plt.clf()
+
