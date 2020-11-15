@@ -45,94 +45,94 @@ if __name__ == '__main__':
 					labeled_samples[file] = n_labeld_samples
 					aucs[file] = auc
 
-	for key in best_acc:
-		print('best', key, best_acc[key])
-		print('last', key, last_acc[key])
+	# for key in best_acc:
+	# 	print('best', key, best_acc[key])
+	# 	print('last', key, last_acc[key])
 	
-		# for key, value in epochs_stats.items():	
-		# 	if '0.5' in key:
-		# 		if 'asym' in key:
-		# 			label = key[-15:-4] if 'abalation' in key else 'original'
-		# 			plt.plot(epochs_stats[key], labeled_samples[key], label = label)
+	# 	for key, value in epochs_stats.items():	
+	# 		if '0.5' in key:
+	# 			if 'asym' in key:
+	# 				label = key[-15:-4] if 'abalation' in key else 'original'
+	# 				plt.plot(epochs_stats[key], labeled_samples[key], label = label)
 		
-		# plt.xlabel('epoch')
-		# plt.ylabel('number of cleaned samples')
-		# plt.legend(loc = 1)
-		# fig_path = os.path.join(root_dir, 'plots', '0.5_asym_labeled_samples.jpg')
-		# plt.savefig(fig_path)
-		# plt.clf()
+	# 	plt.xlabel('epoch')
+	# 	plt.ylabel('number of cleaned samples')
+	# 	plt.legend(loc = 1)
+	# 	fig_path = os.path.join(root_dir, 'plots', '0.5_asym_labeled_samples.jpg')
+	# 	plt.savefig(fig_path)
+	# 	plt.clf()
 
 
-		# for r in noise:	
-		# 	for key, value in epochs_stats.items():
-		# 		if not 'asym' in key:
-		# 			if r in key:
-		# 				label = key[-15:-4] if 'abalation' in key else 'original'
-		# 				plt.plot(epochs_stats[key], labeled_samples[key], label = label)
+	# 	for r in noise:	
+	# 		for key, value in epochs_stats.items():
+	# 			if not 'asym' in key:
+	# 				if r in key:
+	# 					label = key[-15:-4] if 'abalation' in key else 'original'
+	# 					plt.plot(epochs_stats[key], labeled_samples[key], label = label)
 
-		# 	plt.xlabel('epoch')
-		# 	plt.ylabel('number of cleaned samples')
-		# 	plt.legend(loc = 1)
-		# 	fig_path = os.path.join(root_dir, 'plots', r + '_sym_labeled_samples.jpg')
-		# 	plt.savefig(fig_path)
-		# 	plt.clf()
+	# 		plt.xlabel('epoch')
+	# 		plt.ylabel('number of cleaned samples')
+	# 		plt.legend(loc = 1)
+	# 		fig_path = os.path.join(root_dir, 'plots', r + '_sym_labeled_samples.jpg')
+	# 		plt.savefig(fig_path)
+	# 		plt.clf()
 
 
-		# for key, value in epochs_stats.items():	
-		# 	if '0.5' in key:
-		# 		if 'asym' in key:
-		# 			label = key[-15:-4] if 'abalation' in key else 'original'
-		# 			plt.plot(epochs_stats[key], aucs[key], label = label)
+	# 	for key, value in epochs_stats.items():	
+	# 		if '0.5' in key:
+	# 			if 'asym' in key:
+	# 				label = key[-15:-4] if 'abalation' in key else 'original'
+	# 				plt.plot(epochs_stats[key], aucs[key], label = label)
 		
-		# plt.xlabel('epoch')
-		# plt.ylabel('AUC of cleaned samples')
-		# plt.legend(loc = 1)
-		# fig_path = os.path.join(root_dir, 'plots', '0.5_asym_AUC.jpg')
-		# plt.savefig(fig_path)
-		# plt.clf()
+	# 	plt.xlabel('epoch')
+	# 	plt.ylabel('AUC of cleaned samples')
+	# 	plt.legend(loc = 1)
+	# 	fig_path = os.path.join(root_dir, 'plots', '0.5_asym_AUC.jpg')
+	# 	plt.savefig(fig_path)
+	# 	plt.clf()
 
 
-		# for r in noise:	
-		# 	for key, value in epochs_stats.items():
-		# 		if not 'asym' in key:
-		# 			if r in key:
-		# 				label = key[-15:-4] if 'abalation' in key else 'original'
-		# 				plt.plot(epochs_stats[key], aucs[key], label = label)
+	# 	for r in noise:	
+	# 		for key, value in epochs_stats.items():
+	# 			if not 'asym' in key:
+	# 				if r in key:
+	# 					label = key[-15:-4] if 'abalation' in key else 'original'
+	# 					plt.plot(epochs_stats[key], aucs[key], label = label)
 
-		# 	plt.xlabel('epoch')
-		# 	plt.ylabel('AUC of cleaned samples')
-		# 	plt.legend(loc = 1)
-		# 	fig_path = os.path.join(root_dir, 'plots', r + '_sym_AUC.jpg')
-		# 	plt.savefig(fig_path)
-		# 	plt.clf()
+	# 		plt.xlabel('epoch')
+	# 		plt.ylabel('AUC of cleaned samples')
+	# 		plt.legend(loc = 1)
+	# 		fig_path = os.path.join(root_dir, 'plots', r + '_sym_AUC.jpg')
+	# 		plt.savefig(fig_path)
+	# 		plt.clf()
 
 
-		# for key, value in epochs.items():
-		# 	if '0.5' in key:
-		# 		if 'asym' in key:
-		# 			label = key[-15:-4] if 'abalation' in key else 'original'
-		# 			plt.plot(epochs[key], accs[key], label = label)
+	# 	for key, value in epochs.items():
+	# 		if '0.5' in key:
+	# 			if 'asym' in key:
+	# 				label = key[-15:-4] if 'abalation' in key else 'original'
+	# 				plt.plot(epochs[key], accs[key], label = label)
 				
-		# plt.xlabel('epochs')
-		# plt.ylabel('test accuracy')
-		# plt.legend()
-		# plt.savefig(os.path.join(dirpath, 'plots', '0.5_asym_acc.jpg'))
-		# plt.clf()
+	# 	plt.xlabel('epochs')
+	# 	plt.ylabel('test accuracy')
+	# 	plt.legend()
+	# 	plt.savefig(os.path.join(dirpath, 'plots', '0.5_asym_acc.jpg'))
+	# 	plt.clf()
 		
 		
-		# for r in noise:
-		# 	for key, value in epochs.items():
-		# 		if not 'asym' in key:
-		# 			if r in key:
-		# 				label = key[-15:-4] if 'abalation' in key else 'original'
-		# 				plt.plot(epochs[key], accs[key], label = label)
+		for r in noise:
+			for key, value in epochs.items():
+				if not 'asym' in key:
+					if r in key:
+						label = key[-15:-4] if 'abalation' in key else 'original'
+						plt.plot(epochs[key], accs[key], label = label)
 						
 					
-		# 	plt.xlabel('epochs')
-		# 	plt.ylabel('test accuracy')
-		# 	plt.legend()
-		# 	plt.savefig(os.path.join(dirpath, 'plots', r + '_sym_acc.jpg'))
-		# 	plt.clf()
+			plt.xlabel('epochs')
+			plt.ylabel('test accuracy')
+			plt.legend()
+			plt.savefig(os.path.join(dirpath, 'plots', r + '_sym_acc.jpg'))
+			plt.clf()
 
 			
 			
