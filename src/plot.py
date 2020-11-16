@@ -48,15 +48,25 @@ if __name__ == '__main__':
 	# for key in best_acc:
 	# 	print('best', key, best_acc[key])
 	# 	print('last', key, last_acc[key])
-	
 		for key, value in epochs_stats.items():	
 			if '0.5' in key:
 				if 'asym' in key:
-					label = key[-14:-4] if 'ablation' in key else 'original'
-					plt.plot(epochs_stats[key], labeled_samples[key], label = label)
+					if 'ablation_1' in key:
+						plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_1', color = 'b')
+					elif 'ablation_2' in key:
+						plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_2', color = 'g')
+					elif 'ablation_3' in key:
+						plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_3', color = 'r')
+					elif 'ablation_4' in key:
+						plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_4', color = 'c')
+					else:
+						plt.plot(epochs_stats[key], labeled_samples[key], label = 'original', color = 'm')
+
+
 		
 		plt.xlabel('epoch')
 		plt.ylabel('number of cleaned samples')
+		plt.ylim(0, 50000)
 		plt.legend(loc = 1)
 		fig_path = os.path.join(root_dir, 'plots', '0.5_asym_labeled_samples.jpg')
 		plt.savefig(fig_path)
@@ -67,11 +77,20 @@ if __name__ == '__main__':
 			for key, value in epochs_stats.items():
 				if not 'asym' in key:
 					if r in key:
-						label = key[-14:-4] if 'ablation' in key else 'original'
-						plt.plot(epochs_stats[key], labeled_samples[key], label = label)
+						if 'ablation_1' in key:
+							plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_1', color = 'b')
+						elif 'ablation_2' in key:
+							plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_2', color = 'g')
+						elif 'ablation_3' in key:
+							plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_3', color = 'r')
+						elif 'ablation_4' in key:
+							plt.plot(epochs_stats[key], labeled_samples[key], label = 'ablation_4', color = 'c')
+						else:
+							plt.plot(epochs_stats[key], labeled_samples[key], label = 'original', color = 'm')
 
 			plt.xlabel('epoch')
 			plt.ylabel('number of cleaned samples')
+			plt.ylim(0, 50000)
 			plt.legend(loc = 1)
 			fig_path = os.path.join(root_dir, 'plots', r + '_sym_labeled_samples.jpg')
 			plt.savefig(fig_path)
@@ -81,11 +100,20 @@ if __name__ == '__main__':
 		for key, value in epochs_stats.items():	
 			if '0.5' in key:
 				if 'asym' in key:
-					label = key[-14:-4] if 'ablation' in key else 'original'
-					plt.plot(epochs_stats[key], aucs[key], label = label)
-		
+					if 'ablation_1' in key:
+						plt.plot(epochs_stats[key], aucs[key], label = 'ablation_1', color = 'b')
+					elif 'ablation_2' in key:
+						plt.plot(epochs_stats[key], aucs[key], label = 'ablation_2', color = 'g')
+					elif 'ablation_3' in key:
+						plt.plot(epochs_stats[key], aucs[key], label = 'ablation_3', color = 'r')
+					elif 'ablation_4' in key:
+						plt.plot(epochs_stats[key], aucs[key], label = 'ablation_4', color = 'c')
+					else:
+						plt.plot(epochs_stats[key], aucs[key], label = 'original', color = 'm')
+
 		plt.xlabel('epoch')
 		plt.ylabel('AUC of cleaned samples')
+		plt.ylim(0,1)
 		plt.legend(loc = 1)
 		fig_path = os.path.join(root_dir, 'plots', '0.5_asym_AUC.jpg')
 		plt.savefig(fig_path)
@@ -96,12 +124,21 @@ if __name__ == '__main__':
 			for key, value in epochs_stats.items():
 				if not 'asym' in key:
 					if r in key:
-						label = key[-14:-4] if 'ablation' in key else 'original'
-						plt.plot(epochs_stats[key], aucs[key], label = label)
+						if 'ablation_1' in key:
+							plt.plot(epochs_stats[key], aucs[key], label = 'ablation_1', color = 'b')
+						elif 'ablation_2' in key:
+							plt.plot(epochs_stats[key], aucs[key], label = 'ablation_2', color = 'g')
+						elif 'ablation_3' in key:
+							plt.plot(epochs_stats[key], aucs[key], label = 'ablation_3', color = 'r')
+						elif 'ablation_4' in key:
+							plt.plot(epochs_stats[key], aucs[key], label = 'ablation_4', color = 'c')
+						else:
+							plt.plot(epochs_stats[key], aucs[key], label = 'original', color = 'm')
 
 			plt.xlabel('epoch')
 			plt.ylabel('AUC of cleaned samples')
 			plt.legend(loc = 1)
+			plt.ylim(0,1)
 			fig_path = os.path.join(root_dir, 'plots', r + '_sym_AUC.jpg')
 			plt.savefig(fig_path)
 			plt.clf()
@@ -110,11 +147,21 @@ if __name__ == '__main__':
 		for key, value in epochs.items():
 			if '0.5' in key:
 				if 'asym' in key:
-					label = key[-14:-4] if 'ablation' in key else 'original'
-					plt.plot(epochs[key], accs[key], label = label)
+					if 'ablation_1' in key:
+						plt.plot(epochs[key], accs[key], label = 'ablation_1', color = 'b')
+					elif 'ablation_2' in key:
+						plt.plot(epochs[key], accs[key], label = 'ablation_2', color = 'g')
+					elif 'ablation_3' in key:
+						plt.plot(epochs[key], accs[key], label = 'ablation_3', color = 'r')
+					elif 'ablation_4' in key:
+						plt.plot(epochs[key], accs[key], label = 'ablation_4', color = 'c')
+					else:
+						plt.plot(epochs[key], accs[key], label = 'original', color = 'm')
+
 				
 		plt.xlabel('epochs')
 		plt.ylabel('test accuracy')
+		plt.ylim(0,1)
 		plt.legend()
 		plt.savefig(os.path.join(dirpath, 'plots', '0.5_asym_acc.jpg'))
 		plt.clf()
@@ -124,12 +171,23 @@ if __name__ == '__main__':
 			for key, value in epochs.items():
 				if not 'asym' in key:
 					if r in key:
-						label = key[-14:-4] if 'ablation' in key else 'original'
-						plt.plot(epochs[key], accs[key], label = label)
+						if 'ablation_1' in key:
+							plt.plot(epochs[key], accs[key], label = 'ablation_1', color = 'b')
+						elif 'ablation_2' in key:
+							plt.plot(epochs[key], accs[key], label = 'ablation_2', color = 'g')
+						elif 'ablation_3' in key:
+							plt.plot(epochs[key], accs[key], label = 'ablation_3', color = 'r')
+						elif 'ablation_4' in key:
+							plt.plot(epochs[key], accs[key], label = 'ablation_4', color = 'c')
+						else:
+							plt.plot(epochs[key], accs[key], label = 'original', color = 'm')
+
 						
 					
 			plt.xlabel('epochs')
 			plt.ylabel('test accuracy')
+			plt.ylim(0,1)
+
 			plt.legend()
 			plt.savefig(os.path.join(dirpath, 'plots', r + '_sym_acc.jpg'))
 			plt.clf()
